@@ -27,7 +27,7 @@ public interface StaffChatType {
     default boolean sendChatMessage(final Player player, final String message) {
         // Fix messages sending even if no permission.
         if (player.hasPermission("staff.staffchat") || player.hasPermission("staff.developerchat") || player.hasPermission("staff.adminchat")) {
-            sendWebhook(player.getName(), message);
+            sendWebhook(getPrefix(), player.getName(), message);
         }
         if (!player.hasPermission(getPermission()) && !player.isOp()) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', StaffChat.getInstance().getConfig().getString(getPrefix() + ".error")));
@@ -70,11 +70,12 @@ public interface StaffChatType {
     }
 
     // Discord send webhook.
-     static void sendWebhook(String name, String message) {
-        if (!StaffChat.getInstance().getConfig().getBoolean("discordwebhook.enabled")) return;
-        DiscordWebhook discordWebhook = new DiscordWebhook(StaffChat.getInstance().getConfig().getString("discordwebhook.webhook"));
-        discordWebhook.setUsername(StaffChat.getInstance().getConfig().getString("discordwebhook.webhookusername"));
-        discordWebhook.addEmbed(new DiscordWebhook.EmbedObject().setDescription(name + ": " + message).setColor(Color.RED).setFooter(StaffChat.getInstance().getConfig().getString("discordwebhook.footer"), StaffChat.getInstance().getConfig().getString("discordwebhook.footericon")));
+     static void sendWebhook(String prefix, String name, String message) {
+        if (!StaffChat.getInstance().getConfig().getBoolean(prefix + ".discordwebhook.enabled")) return;
+
+        DiscordWebhook discordWebhook = new DiscordWebhook(StaffChat.getInstance().getConfig().getString(prefix + ".discordwebhook.webhook"));
+        discordWebhook.setUsername(StaffChat.getInstance().getConfig().getString(prefix + ".discordwebhook.webhookusername"));
+        discordWebhook.addEmbed(new DiscordWebhook.EmbedObject().setDescription(name + ": " + message).setColor(Color.RED).setFooter(StaffChat.getInstance().getConfig().getString(prefix + ".discordwebhook.footer"), StaffChat.getInstance().getConfig().getString(prefix + ".discordwebhook.footericon")));
         try {
             discordWebhook.execute();
         } catch (IOException e) {
